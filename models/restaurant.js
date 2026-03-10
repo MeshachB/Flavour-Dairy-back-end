@@ -24,7 +24,7 @@ const restaurantSchema = new mongoose.Schema(
     cuisine: {
       type: String,
       required: true,
-      enum: ["Bakery", "Bar", "Brunch", "Cafe", "Fast Food", "Restaurant"],
+      enum: ["Bakery", "Bar", "Brunch", "Cafe", "Fast Food", "Fine Dining"],
     },
     rating: {
       type: Number,
