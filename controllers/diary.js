@@ -118,8 +118,6 @@ router.delete(
     try {
       const diary = await Diary.findById(req.params.diaryId);
       const comment = diary.comments.id(req.params.commentId);
-
-      // ensures the current user is the author of the comment
       if (comment.author.toString() !== req.user._id) {
         return res
           .status(403)
