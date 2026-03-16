@@ -16,14 +16,14 @@ router.post("/", verifyToken, async (req, res) => {
 
 router.get("/", verifyToken, async (req, res) => {
   try {
-    const diarys = await Diary.find({})
+    const diaries = await Diary.find({})
       .populate("author")
       .sort({ createdAt: "desc" });
-    res.status(200).json(diarys);
+    res.status(200).json(diaries);
   } catch (err) {
     res.status(500).json({ err: err.message });
   }
-}); 
+});
 
 router.get("/:diaryId", verifyToken, async (req, res) => {
   try {
@@ -38,7 +38,6 @@ router.get("/:diaryId", verifyToken, async (req, res) => {
   }
 });
 
-
 router.put("/:diaryId", verifyToken, async (req, res) => {
   try {
     const diary = await Diary.findById(req.params.diaryId);
@@ -50,7 +49,7 @@ router.put("/:diaryId", verifyToken, async (req, res) => {
     const updatedDiary = await Diary.findByIdAndUpdate(
       req.params.diaryId,
       req.body,
-      { new: true }
+      { new: true },
     );
 
     updatedDiary._doc.author = req.user;
@@ -71,7 +70,7 @@ router.delete("/:diaryId", verifyToken, async (req, res) => {
 
     await diary.deleteOne();
 
-    res.status(200).json({ message: "Diary entry deleted!" });
+    res.status(200).json(diary);
   } catch (err) {
     res.status(500).json({ err: err.message });
   }
@@ -92,4 +91,46 @@ router.post("/:diaryId/comments", verifyToken, async (req, res) => {
     res.status(500).json({ err: err.message });
   }
 });
+
+router.put("/:diaryId/comments/:commentId", verifyToken, async (req, res) => {
+  try {
+    const diary = await Diary.findById(req.params.diaryId);
+    const comment = diary.comments.id(req.params.commentId);
+
+    if (comment.author.toString() !== req.user._id) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to edit this comment" });
+    }
+
+    comment.text = req.body.text;
+    await diary.save();
+    res.status(200).json({ message: "Comment updated successfully" });
+  } catch (err) {
+    res.status(500).json({ err: err.message });
+  }
+});
+
+router.delete(
+  "/:diaryId/comments/:commentId",
+  verifyToken,
+  async (req, res) => {
+    try {
+      const diary = await Diary.findById(req.params.diaryId);
+      const comment = diary.comments.id(req.params.commentId);
+      if (comment.author.toString() !== req.user._id) {
+        return res
+          .status(403)
+          .json({ message: "You are not authorized to edit this comment" });
+      }
+
+      diary.comments.remove({ _id: req.params.commentId });
+      await diary.save();
+      res.status(200).json({ message: "Comment deleted successfully" });
+    } catch (err) {
+      res.status(500).json({ err: err.message });
+    }
+  },
+);
+
 module.exports = router;
