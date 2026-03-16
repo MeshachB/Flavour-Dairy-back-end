@@ -10,6 +10,8 @@ router.post("/", verifyToken, async (req, res) => {
     diary._doc.author = req.user;
     res.status(201).json(diary);
   } catch (err) {
+    console.log("POST /diary error:", err.message);
+    console.log("req.body:", req.body);
     res.status(500).json({ err: err.message });
   }
 });
