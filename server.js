@@ -22,12 +22,12 @@ mongoose.connection.on("connected", () => {
 
 // Middleware
 app.use(cors({
- origin: [
-    "http://localhost:5173", // Vite dev server
-    "https://flavourdairy.netlify.app"
- ],
- methods: ["GET","POST","PUT","DELETE"],
- credentials: true
+  origin: [
+    "http://localhost:5173", // Vite dev server
+    process.env.NETLIFY_HOST
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
 }));
 
 app.options("*", cors());
@@ -42,6 +42,6 @@ app.use("/users", usersRouter);
 app.use("/diary", diaryRouter);
 
 // Start the server and listen on port 3000
-app.listen(3000, () => {
+app.listen(process.env.PORT, () => {
   console.log("The express app is ready!");
 });
